@@ -13,7 +13,7 @@ from signal import signal, SIGINT
 HOST = '127.0.0.1' #localhost by default
 PORT = 4444
 USAGE= f"Usage: {sys.argv[0]} -p <port> -a <host>"
-conn = None
+sock = None
 
 # opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
 # args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
@@ -28,26 +28,29 @@ def runServer(PORT,HOST):
         print(f"Error: {error.strerror}")
         sys.exit()
 
+    #putting while here, prevent server to die after one connection closed.
+    #it can continue listening for another connection
+    while True:
+        print("Waiting for connection...")
+        conn,addr = sock.accept()
+        try:
+            if addr or conn:
+                print(f"{addr}, connected..")
 
-    conn,addr = sock.accept()
-    if addr or conn:
-        print(f"{addr}, connected..")
-
-        while True:
-            data = conn.recv(1024)
-            if not data: break
-            # if data.decode() == "bye": break
-            print(f"{addr} say: {data.decode()}")
-            # echo back to client
-            conn.send(data) #echo back what we get
-        
-        conn.close() #close connection
+                while True:
+                    data = conn.recv(1024)
+                    if not data: break
+                    # if data.decode() == "bye": break
+                    print(f"{addr} say: {data.decode()}")
+                    # echo back to client
+                    conn.send(data) #echo back what we get
+                
+        finally:        
+            conn.close() #close connection
 
 def handler(signal_received,frame):
     #handle ctrl+c
     print(f' SIGINT or CTRL-C detected. Exiting gracefully')
-    if conn:
-        conn.close() 
     exit(0)
 
 def parseOpts(argv):
