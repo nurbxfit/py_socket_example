@@ -22,7 +22,7 @@ def runServer(PORT,HOST):
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM) #create ipv4 tcp socket
     try:
         sock.bind((HOST,int(PORT)))
-        sock.listen(1) 
+        sock.listen() 
         print(f"Server listening on {HOST}:{PORT} ...")
     except OSError as error:
         print(f"Error: {error.strerror}")
